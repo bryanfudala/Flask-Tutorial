@@ -590,3 +590,93 @@ The commands to run now are simple:
 * `coverage` this will give a report on testing coverage for the projuect.
 
 You can run `coverage html` to get the coverage reports as a web page.
+
+## Deployment
+
+The last part of the tutorial describes how to distribute and deploy to production.
+
+### Build and install
+
+A method for python distribution is to create a **_wheel_** file which has a `.whl` extension
+
+Install wheel into your project:
+
+`pip install wheel`
+
+Next, run the `bdist_wheel` command to create a wheel distribution:
+
+`python setup.py bdist_wheel`
+
+This will create a few new directories.  Go to the `dist/` subdirectory and you will find your installable **_wheel_** file.
+
+`dist/flaskr-1.0.0-py3-none-any.whl`
+
+This `.whl` file can be installed anywhere with pip:
+
+`pip install flaskr-1.0.0-py3-none-any.whl`
+
+If you were to deploy this `.whl` file to another computer, you would need to ensure environment that variables remain intact:
+
+``` bash
+$ export FLASK_APP=flaskr
+$ flask init-db
+```
+
+### Configure the Secret Key
+
+At the beginning of the tutorial, we set a secret key, used to generate hashes and other aspects of securing our code.  In development, we used the string `dev`.  
+We should now use a better key.
+
+The tutorial recommends this approach:
+
+```bash
+python -c 'import os; print(os.urandom(16))'
+```
+
+### Running in production
+
+The tutorial recommends the [waitress](https://docs.pylonsproject.org/projects/waitress/en/stable/) [WGSI server](https://www.fullstackpython.com/wsgi-servers.html) for deployment.
+
+To install it:
+
+`pip install waitress`
+
+Once installed, a new WSGI server is available by running:
+
+`waitress-serve --call 'flaskr:create_app'`
+
+### Deployment Options
+
+While [waitress](https://docs.pylonsproject.org/projects/waitress/en/stable/) is useful, you may want to understand other options.  For this there are two basic catgories:
+
+* Hosted
+* Self-Hosted
+
+#### Hosted
+
+There are a number of free, quasi-free, and paid services ready to host your flask (or Django) applications:
+
+* Deploying Flask on [Heroku](https://devcenter.heroku.com/articles/getting-started-with-python) <-- I have the most experience with this route
+* Deploying Flask on [Google App Engine](https://cloud.google.com/appengine/docs/standard/python3/runtime)
+* Deploying [Flask on AWS Elastic Beanstalk](https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/create-deploy-python-flask.html)
+* Deploying on [Azure (IIS)](https://docs.microsoft.com/en-us/azure/app-service/configure-language-python)
+* Deploying on [PythonAnywhere](https://help.pythonanywhere.com/pages/Flask/)
+
+#### Self-Hosted
+
+This almost always means that you are renting a [VPS](https://en.wikipedia.org/wiki/Virtual_private_server) and then handling the details yourself on that rented hardware.  Typical options:
+
+* [Gunicorn](https://flask.palletsprojects.com/en/1.1.x/deploying/wsgi-standalone/#gunicorn) <-- I have the most experience with this route
+* [uWSGI - "micro WSGI"](https://flask.palletsprojects.com/en/1.1.x/deploying/wsgi-standalone/#uwsgi)
+* [Proxies](https://flask.palletsprojects.com/en/1.1.x/deploying/wsgi-standalone/#proxy-setups) - It is common to work in conjunction with another web server, [nginx](https://nginx.org/en/) is preferred.
+
+For a VPS, I commonly use:
+
+* [Linode](https://www.linode.com/)
+* [Digital Ocean](https://www.digitalocean.com/)
+
+Other options include:
+
+* [mod_wsgi (Apache)](https://flask.palletsprojects.com/en/1.1.x/deploying/mod_wsgi/) - The [Apache web server](https://httpd.apache.org/) is a tried-and-true and long-standing solution.
+* [FastCGI](https://flask.palletsprojects.com/en/1.1.x/deploying/fastcgi/#fastcgi) - Not so much another option, but this is the technology that allows proxied web servers to interoperate with WSGI.
+* [CGI](https://flask.palletsprojects.com/en/1.1.x/deploying/cgi/#cgi) - It these options were a `switch` statement, this would be the `default:` case.
